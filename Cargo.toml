@@ -10,6 +10,7 @@ members = [
     "crates/pa-daemon",
     "crates/pa-tui",
     "crates/pa-cli",
+    "crates/pa-x-identity",
 ]
 
 # Crossterm 0.28.1's kitty support check holds the process-wide event reader
@@ -24,6 +25,7 @@ edition = "2021"
 license = "MIT"
 
 [workspace.dependencies]
+pa-x-identity = { path = "crates/pa-x-identity" }
 serde = { version = "1", features = ["derive"] }
 # preserve_order: serde_json::Map keeps insertion order (IndexMap) so every
 # wire/durable JSON surface serializes in construction order — the JS object

@@ -4,6 +4,7 @@
 
 use std::path::Path;
 
+#[cfg(test)]
 use pa_telemetry::parse_bool_override;
 
 use crate::settings::SettingsManager;
@@ -14,6 +15,8 @@ use crate::settings::SettingsManager;
 /// `telemetry.enabled`, then the default (on).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TelemetrySwitch {
+    /// pa-x never uploads telemetry.
+    ForkDisabled,
     /// Nothing set: on.
     Default,
     /// Settings `telemetry.enabled` (any scope false turns it off).
@@ -26,6 +29,7 @@ impl TelemetrySwitch {
     #[must_use]
     pub fn enabled(self) -> bool {
         match self {
+            Self::ForkDisabled => false,
             Self::Default => true,
             Self::Settings(enabled) | Self::Env { enabled, .. } => enabled,
         }
@@ -35,6 +39,7 @@ impl TelemetrySwitch {
     #[must_use]
     pub fn reason(self) -> String {
         match self {
+            Self::ForkDisabled => "disabled by pa-x".to_string(),
             Self::Default => "on by default".to_string(),
             Self::Settings(true) => "turned on in settings".to_string(),
             Self::Settings(false) => "turned off in settings".to_string(),
@@ -53,13 +58,11 @@ impl TelemetrySwitch {
 
 /// Resolve the switch from the environment and `settings`.
 #[must_use]
-pub fn telemetry_switch(settings: &SettingsManager) -> TelemetrySwitch {
-    switch_from(
-        |var| std::env::var(var).ok(),
-        settings.telemetry_enabled_setting(),
-    )
+pub fn telemetry_switch(_settings: &SettingsManager) -> TelemetrySwitch {
+    TelemetrySwitch::ForkDisabled
 }
 
+#[cfg(test)]
 fn switch_from(env: impl Fn(&str) -> Option<String>, setting: Option<bool>) -> TelemetrySwitch {
     for var in ["PI_OFFLINE", "DO_NOT_TRACK"] {
         if parse_bool_override(env(var).as_deref()) == Some(true) {
@@ -83,7 +86,7 @@ fn switch_from(env: impl Fn(&str) -> Option<String>, setting: Option<bool>) -> T
 /// development never reach production analytics.
 #[must_use]
 pub fn telemetry_endpoint() -> Option<&'static str> {
-    (!cfg!(debug_assertions)).then_some(pa_telemetry::ANALYTICS_ENDPOINT)
+    None
 }
 
 /// The `status` report: state and why, the endpoint, the installation id.
@@ -91,7 +94,7 @@ pub fn telemetry_endpoint() -> Option<&'static str> {
 pub fn telemetry_status_text(settings: &SettingsManager, agent_dir: &Path) -> String {
     let switch = telemetry_switch(settings);
     let state = if switch.enabled() { "on" } else { "off" };
-    let endpoint = telemetry_endpoint().unwrap_or("nowhere (development build)");
+    let endpoint = telemetry_endpoint().unwrap_or("nowhere (pa-x disables telemetry)");
     let installation_id = pa_telemetry::existing_install_id(agent_dir)
         .unwrap_or_else(|| "not created yet".to_string());
     format!(
@@ -251,6 +254,6 @@ mod tests {
         let id = pa_telemetry::install_id(&agent_dir).unwrap();
         let after = telemetry_status_text(&settings, &agent_dir);
         assert!(after.contains(&format!("Installation id: {id}")));
-        assert!(after.contains("Endpoint: nowhere (development build)"));
+        assert!(after.contains("Endpoint: nowhere (pa-x disables telemetry)"));
     }
 }

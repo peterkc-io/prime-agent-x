@@ -1100,6 +1100,9 @@ async fn run_interactive_surface(
                             )
                             .await;
                         if let Err(error) = dispatched {
+                            if error.is::<pa_types::fork_identity::UpdateUnavailable>() {
+                                return Err(error);
+                            }
                             // TS: a rejected submission surfaces the `⚠ Error`
                             // row and keeps the client mounted with the draft
                             // restored — a failed prompt never exits the UI.

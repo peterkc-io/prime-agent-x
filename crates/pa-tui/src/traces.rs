@@ -397,6 +397,10 @@ pub enum TraceLoginOutcome {
 /// the auth store, the upload engine, and the terminal login flow stay
 /// above this crate).
 pub trait TracesCommands: Send + Sync {
+    /// Whether this client permits trace sharing.
+    fn supported(&self) -> bool {
+        true
+    }
     /// The `agentTraces.enabled` setting (TS `getAgentTracesEnabled`).
     fn enabled(&self) -> TracesFuture<bool>;
     /// Set the flag and flush (TS `setAgentTracesEnabled` + `flush()`).

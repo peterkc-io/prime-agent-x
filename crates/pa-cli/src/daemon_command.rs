@@ -54,7 +54,7 @@ pub(crate) fn run_daemon_command(command: &str, args: &[String]) -> Result<()> {
 /// semantics (`send`/`cron` keep the separator as an operand, the others
 /// consume it). The command name is fixed by the public router.
 fn parse_daemon_command(command: &str, args: &[String]) -> Result<ParsedDaemonCommand> {
-    let mut socket_path = default_socket_path();
+    let mut socket_path = None;
     let mut json = false;
     let mut positionals: Vec<String> = Vec::new();
     let mut passthrough = false;
@@ -79,7 +79,8 @@ fn parse_daemon_command(command: &str, args: &[String]) -> Result<ParsedDaemonCo
         // requests before this layer, so the branch only preserves parity.
         if arg == "--help" || arg == "-h" {
             return Ok(ParsedDaemonCommand {
-                socket_path,
+                socket_path: socket_path
+                    .unwrap_or_else(pa_daemon::socket::default_daemon_socket_path),
                 json,
                 positionals,
                 help: true,
@@ -90,7 +91,7 @@ fn parse_daemon_command(command: &str, args: &[String]) -> Result<ParsedDaemonCo
                 .get(index)
                 .ok_or_else(|| anyhow!("{arg} requires a value"))?;
             index += 1;
-            socket_path = normalize_socket_path(value);
+            socket_path = Some(normalize_socket_path(value));
             continue;
         }
         if arg == "--json" {
@@ -99,6 +100,8 @@ fn parse_daemon_command(command: &str, args: &[String]) -> Result<ParsedDaemonCo
         }
         positionals.push(arg.to_string());
     }
+    let socket_path = socket_path.map_or_else(default_socket_path, Ok)?;
+    pa_types::fork_identity::reject_upstream_socket(&socket_path)?;
     Ok(ParsedDaemonCommand {
         socket_path,
         json,
@@ -107,7 +110,7 @@ fn parse_daemon_command(command: &str, args: &[String]) -> Result<ParsedDaemonCo
     })
 }
 
-fn default_socket_path() -> PathBuf {
+fn default_socket_path() -> std::io::Result<PathBuf> {
     crate::config::resolve_daemon_socket_path(None)
 }
 

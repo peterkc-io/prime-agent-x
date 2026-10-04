@@ -112,7 +112,8 @@ async fn acp_mode_main(options: &RunOptions) -> Result<i32, String> {
     // install-rust.sh pins that env, so the ACP path must honor it or it
     // would target the TypeScript default socket and treat the schema
     // mismatch as a stale daemon).
-    let socket_path = crate::config::resolve_daemon_socket_path(options.daemon_socket.as_deref());
+    let socket_path = crate::config::resolve_daemon_socket_path(options.daemon_socket.as_deref())
+        .map_err(|error| error.to_string())?;
     crate::interactive_mode::ensure_daemon_running(&socket_path, &options.config.cwd)
         .await
         .map_err(|error| format!("{error:#}"))?;
@@ -1193,7 +1194,8 @@ fn session_open_guard(
     socket_path: Option<&str>,
     session_path: &std::path::Path,
 ) -> Result<pa_daemon::lease::SessionLease, String> {
-    let socket = crate::interactive_mode::resolve_socket_path(socket_path);
+    let socket = crate::interactive_mode::resolve_socket_path(socket_path)
+        .map_err(|error| error.to_string())?;
     if let Ok(mut client) = crate::daemon_client::DaemonClient::connect(&socket) {
         let list = client
             .request(pa_types::daemon::DaemonCommand::List {

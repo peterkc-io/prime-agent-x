@@ -63,6 +63,7 @@ async fn probe_daemon(socket_path: &Path) -> DaemonProbe {
 /// when the supervisor process cannot be spawned, or when no current
 /// daemon starts before the startup timeout.
 pub async fn ensure_daemon_running(socket_path: &Path, spawn_cwd: &Path) -> Result<()> {
+    pa_types::fork_identity::reject_upstream_socket(socket_path)?;
     match probe_daemon(socket_path).await {
         DaemonProbe::Current => return Ok(()),
         DaemonProbe::Stale(client) => shutdown_stale_daemon(*client, socket_path).await?,
@@ -83,6 +84,7 @@ pub async fn ensure_daemon_running_with(
     socket_path: &Path,
     spawn_cwd: &Path,
 ) -> Result<()> {
+    pa_types::fork_identity::reject_upstream_socket(socket_path)?;
     match probe_daemon(socket_path).await {
         DaemonProbe::Current => return Ok(()),
         DaemonProbe::Stale(client) => {

@@ -4,7 +4,7 @@
 use std::path::{Path, PathBuf};
 
 /// The user-facing application name (`piConfig.name` in package.json).
-pub const APP_NAME: &str = "prime-agent";
+pub const APP_NAME: &str = "pa-x";
 
 /// The agent state directory name (`piConfig.configDir` in package.json).
 pub const CONFIG_DIR_NAME: &str = ".prime/agent";
@@ -28,8 +28,8 @@ pub const ENV_DAEMON_SOCKET: &str = "PRIME_AGENT_DAEMON_SOCKET";
 
 /// The daemon socket path: an explicit `--daemon-socket` flag wins, then
 /// [`ENV_DAEMON_SOCKET`], then the per-user default.
-pub fn resolve_daemon_socket_path(daemon_socket: Option<&str>) -> PathBuf {
-    daemon_socket
+pub fn resolve_daemon_socket_path(daemon_socket: Option<&str>) -> std::io::Result<PathBuf> {
+    let path = daemon_socket
         .map(expand_tilde_path)
         .or_else(|| {
             std::env::var_os(ENV_DAEMON_SOCKET)
@@ -37,7 +37,9 @@ pub fn resolve_daemon_socket_path(daemon_socket: Option<&str>) -> PathBuf {
                 .as_deref()
                 .map(expand_tilde_path_os)
         })
-        .unwrap_or_else(pa_daemon::socket::default_daemon_socket_path)
+        .unwrap_or_else(pa_daemon::socket::default_daemon_socket_path);
+    pa_types::fork_identity::reject_upstream_socket(&path)?;
+    Ok(path)
 }
 
 /// [`expand_tilde_path`] over a raw environment value: a tilde-prefixed
@@ -171,15 +173,15 @@ mod tests {
         let default = pa_daemon::socket::default_daemon_socket_path();
         std::env::set_var(ENV_DAEMON_SOCKET, "/tmp/rust-launcher.sock");
         assert_eq!(
-            resolve_daemon_socket_path(None),
+            resolve_daemon_socket_path(None).unwrap(),
             PathBuf::from("/tmp/rust-launcher.sock")
         );
         assert_eq!(
-            resolve_daemon_socket_path(Some("/tmp/flag.sock")),
+            resolve_daemon_socket_path(Some("/tmp/flag.sock")).unwrap(),
             PathBuf::from("/tmp/flag.sock")
         );
         std::env::remove_var(ENV_DAEMON_SOCKET);
-        assert_eq!(resolve_daemon_socket_path(None), default);
+        assert_eq!(resolve_daemon_socket_path(None).unwrap(), default);
     }
 
     #[test]
@@ -216,3 +218,7 @@ mod tests {
         std::env::remove_var("USERPROFILE");
     }
 }
+
+#[cfg(test)]
+#[path = "fork/config_tests.rs"]
+mod fork_tests;

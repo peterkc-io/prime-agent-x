@@ -19,6 +19,9 @@ pub type UpdateRunFuture = Pin<Box<dyn std::future::Future<Output = UpdateOutcom
 /// the output captured — the live frame stays intact), so the two
 /// surfaces cannot diverge.
 pub trait UpdateCommands: Send + Sync {
+    fn unavailable_reason(&self) -> Option<&'static str> {
+        None
+    }
     /// Run the download+install and report the new build's version (or
     /// the failure message). The caller spawns this; the run may take
     /// minutes (the installer downloads its own artifacts).

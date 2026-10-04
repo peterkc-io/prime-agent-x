@@ -1411,12 +1411,20 @@ version = "0.9.8"
 dependencies = [
  "anyhow",
  "libc",
+ "pa-x-identity",
  "regex",
  "serde",
  "serde_json",
  "tempfile",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "pa-x-identity"
+version = "0.9.8"
+dependencies = [
+ "tempfile",
 ]
 
 [[package]]

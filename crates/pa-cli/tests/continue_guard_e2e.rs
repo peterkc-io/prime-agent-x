@@ -47,7 +47,7 @@ impl Drop for Daemon {
 
 #[allow(clippy::zombie_processes)]
 fn spawn_daemon(socket: &Path, agent_dir: &Path) -> Daemon {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_prime-agent"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
     command
         .args(["--mode", "daemon", "--daemon-socket"])
         .arg(socket)
@@ -145,7 +145,7 @@ fn make_session_active(socket: &Path, session_path: &Path, cwd: &Path) -> String
 }
 
 fn run_print(args: &[&str], env: &[(String, String)]) -> (String, String, i32) {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_prime-agent"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
     command.args(args);
     for (key, value) in env {
         command.env(key, value);

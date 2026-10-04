@@ -124,9 +124,11 @@ fn map_preview_result(result: TracePreviewResult) -> TracePreviewOutcome {
 }
 
 impl TracesCommands for ClientTraces {
+    fn supported(&self) -> bool {
+        false
+    }
     fn enabled(&self) -> TracesFuture<bool> {
-        let settings = self.settings();
-        Box::pin(async move { settings.get_agent_traces_enabled() })
+        Box::pin(async { false })
     }
 
     fn set_enabled(&self, enabled: bool) -> TracesFuture<anyhow::Result<()>> {
@@ -280,7 +282,10 @@ mod tests {
         // A fresh manager over the same directories reads the write (TS
         // reloads settings before reporting the flag).
         let traces = ClientTraces::new("/tmp", agent.clone());
-        assert!(traces.enabled().await);
+        assert!(
+            !traces.enabled().await,
+            "pa-x stays off despite the saved choice"
+        );
     }
 
     #[tokio::test]
@@ -361,16 +366,15 @@ mod tests {
     // The process env must stay stable across the flow's awaits:
     // the sync env lock is held for the whole test by design.
     #[allow(clippy::await_holding_lock)]
-    async fn the_report_formats_the_engine_rows() {
+    async fn the_report_stays_disabled_without_a_session_or_credential() {
         let _env = env_lock();
         std::env::remove_var("PRIME_AGENT_TRACES_API_KEY");
         std::env::remove_var("PRIME_API_KEY");
         let (_dir, agent) = temp_agent_dir();
         let traces = ClientTraces::new("/tmp", agent.clone());
-        // No session file: the engine's no-file row.
+        // Fork policy wins before the no-file and credential checks.
         let report = traces.upload_current(None).await;
-        assert_eq!(report.text, "Current session has no persisted trace yet.");
-        // A session file without a credential: the TS login hint row.
+        assert_eq!(report.text, "Trace sharing is disabled.");
         let session_dir = agent.join("sessions");
         std::fs::create_dir_all(&session_dir).expect("sessions dir");
         let session = session_dir.join("s.jsonl");
@@ -380,9 +384,6 @@ mod tests {
         )
         .expect("session file");
         let report = traces.upload_current(Some(session.to_str().unwrap())).await;
-        assert_eq!(
-            report.text,
-            "Trace sharing needs a Prime API key. Run /traces login."
-        );
+        assert_eq!(report.text, "Trace sharing is disabled.");
     }
 }

@@ -192,6 +192,7 @@ impl Inner {
             command.current_dir(cwd);
         }
         command.env_clear().envs(env);
+        pa_types::fork_identity::strip_internal_environment(command.as_std_mut());
         let child = match command.spawn() {
             Ok(child) => child,
             Err(error) => {

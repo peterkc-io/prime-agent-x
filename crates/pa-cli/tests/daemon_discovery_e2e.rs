@@ -53,7 +53,7 @@ const SCRUB_ENV: [&str; 9] = [
 const LAUNCHER_CLIENT_SOCKET_ENV: &str = "PRIME_AGENT_TEST_LAUNCHER_CLIENT_SOCKET";
 
 fn cli_binary() -> PathBuf {
-    PathBuf::from(env!("CARGO_BIN_EXE_prime-agent"))
+    PathBuf::from(env!("CARGO_BIN_EXE_pa-x"))
 }
 
 /// A spawned supervisor, killed on drop so a failed test never leaks a

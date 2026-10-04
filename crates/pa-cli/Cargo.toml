@@ -5,6 +5,10 @@ edition.workspace = true
 license.workspace = true
 description = "The prime-agent binary."
 
+[[test]]
+name = "installer_update_e2e"
+path = "tests/fork/updates.rs"
+
 [dependencies]
 pa-types = { path = "../pa-types" }
 pa-core = { path = "../pa-core" }
@@ -20,7 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 [[bin]]
-name = "prime-agent"
+name = "pa-x"
 path = "src/main.rs"
 
 [dev-dependencies]

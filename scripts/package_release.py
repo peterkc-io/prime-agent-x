@@ -108,6 +108,9 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--version", help="release version (default: workspace Cargo.toml)")
     parser.add_argument("--binary", type=Path, help="stage this binary instead of building")
+    parser.add_argument(
+        "--binary-name", help="staged executable name (default: upstream name)"
+    )
     parser.add_argument("--decoder", type=Path, help="separate Linux decoder for --binary")
     parser.add_argument("--skip-build", action="store_true",
                         help="reuse target/release/prime-agent (prime-agent.exe on"
@@ -219,6 +222,7 @@ def resolve_catalog_assets(args):
 
 def stage(root, binary, version, stage_dir, catalog_assets, binary_name):
     stage_dir.mkdir(parents=True)
+    product_name = binary_name.removesuffix(".exe")
     staged_binary = stage_dir / binary_name
     shutil.copy2(binary, staged_binary)
     staged_binary.chmod(0o755)
@@ -243,11 +247,13 @@ def stage(root, binary, version, stage_dir, catalog_assets, binary_name):
     (stage_dir / "package.json").write_text(
         json.dumps(
             {
-                "name": "prime-agent",
+                "name": product_name,
                 "version": version,
                 "description": "Prime Agent: the RLM coding agent (Rust build)",
-                "bin": {"prime-agent": binary_name},
-                "piConfig": {"name": "prime-agent", "configDir": ".prime/agent"},
+                "bin": {product_name: binary_name},
+                "piConfig": {
+                    "name": product_name, "configDir": ".prime/agent"
+                },
             },
             indent=2,
         )
@@ -285,7 +291,7 @@ def pin_version(binary, stage_dir, version, binary_name):
         )
     if probe.returncode != 0:
         raise SystemExit(f"error: prime-agent --version failed: {probe.stderr.strip()}")
-    compiled = probe.stdout.strip()
+    compiled = probe.stdout.strip().removeprefix("pa-x ")
     if compiled != version:
         raise SystemExit(
             f"error: version pin mismatch: binary reports {compiled!r}, release "
@@ -301,7 +307,7 @@ def pin_version(binary, stage_dir, version, binary_name):
     )
     if probe.returncode != 0:
         raise SystemExit(f"error: staged {binary_name} --version failed: {probe.stderr.strip()}")
-    staged = probe.stdout.strip()
+    staged = probe.stdout.strip().removeprefix("pa-x ")
     if staged != version:
         raise SystemExit(
             f"error: staged manifest version mismatch: {staged!r} != {version!r}"
@@ -342,10 +348,13 @@ def main(argv=None):
     root = args.root.resolve()
     version = args.version or workspace_version(root)
     tag = args.platform or release_platform()
-    binary_name = binary_name_for_platform(tag)
+    binary_name = args.binary_name or binary_name_for_platform(tag)
+    if Path(binary_name).name != binary_name or binary_name in (".", ".."):
+        raise SystemExit("error: --binary-name must be a filename")
     out_dir = (args.out_dir or root / "target" / "release-package").resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    stage_dir = out_dir / f"prime-agent-{version}-{tag}"
+    package_name = binary_name.removesuffix(".exe")
+    stage_dir = out_dir / f"{package_name}-{version}-{tag}"
 
     if args.binary:
         binary = args.binary.resolve()

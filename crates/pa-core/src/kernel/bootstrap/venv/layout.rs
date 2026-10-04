@@ -25,7 +25,10 @@ pub fn kernel_venv_dir() -> PathBuf {
             return expand_home(&override_dir);
         }
     }
-    home_dir().join(".prime").join("agent").join("kernel-venv")
+    home_dir()
+        .join(".prime")
+        .join("agent")
+        .join("kernel-venv-pa-x")
 }
 
 fn xdg_kernel_venv_dir() -> PathBuf {
@@ -33,7 +36,10 @@ fn xdg_kernel_venv_dir() -> PathBuf {
         Ok(value) if !value.is_empty() => expand_home(&value),
         _ => home_dir().join(".local").join("share"),
     };
-    data_home.join("prime").join("agent").join("kernel-venv")
+    data_home
+        .join("prime")
+        .join("agent")
+        .join("kernel-venv-pa-x")
 }
 
 pub(crate) fn resolve_writable_kernel_venv_dir() -> anyhow::Result<PathBuf> {

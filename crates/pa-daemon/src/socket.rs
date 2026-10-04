@@ -82,6 +82,7 @@ async fn acquire_cleanup_lock(path: &Path) -> Result<pa_core::platform::LockDir>
 /// or the locked cleanup itself fails.
 #[cfg(unix)]
 pub async fn prepare_socket_path(path: &Path) -> Result<()> {
+    pa_types::fork_identity::reject_upstream_socket(path)?;
     if let Some(parent) = path.parent() {
         crate::paths::ensure_dir(parent)?;
     }
@@ -185,7 +186,8 @@ async fn unlink_stale_socket(path: &Path, expected: SocketIdentity) -> Result<()
 // the unix arm's own; the pipe arm has no path to prepare).
 #[cfg(not(unix))]
 #[cfg_attr(not(unix), allow(clippy::unused_async))]
-pub async fn prepare_socket_path(_path: &Path) -> Result<()> {
+pub async fn prepare_socket_path(path: &Path) -> Result<()> {
+    pa_types::fork_identity::reject_upstream_socket(path)?;
     Ok(())
 }
 

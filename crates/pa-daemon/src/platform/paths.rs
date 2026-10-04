@@ -1,7 +1,7 @@
 //! Per-OS daemon endpoint naming (TS: `daemon-socket.ts`
 //! `defaultDaemonSocketPath` / `daemon-supervisor.ts` `workerSocketPath`).
 //!
-//! Unix: socket files under `<tmpdir>/prime-agent-<uid>/`. Windows: named
+//! Unix: socket files under `<tmpdir>/pa-x-<uid>/`. Windows: named
 //! pipes in the `\\.\pipe\` namespace (fixed daemon pipe name, hashed worker
 //! pipe names) - the TS product's exact split.
 
@@ -14,19 +14,19 @@ use crate::paths::hash_key;
 pub fn socket_dir() -> PathBuf {
     let uid = current_uid().unwrap_or_else(|| "user".to_string());
     let tmp = std::env::var_os("TMPDIR").map_or_else(|| PathBuf::from("/tmp"), PathBuf::from);
-    tmp.join(format!("prime-agent-{uid}"))
+    tmp.join(format!("pa-x-{uid}"))
 }
 
 /// The socket-dir half of a discovery state root on Windows. Daemon
 /// endpoints are named pipes with no directory, but TS still computes
-/// `<tmpdir>/prime-agent-user` there (`getuid` is undefined, so the uid
+/// `<tmpdir>/pa-x-user` there (`getuid` is undefined, so the uid
 /// suffix is the literal `user`) so `DaemonStateRoot` keeps one shape, and
 /// discovery never sweeps it (the socket-dir scan returns nothing on
 /// Windows).
 #[cfg(not(unix))]
 #[must_use]
 pub fn socket_dir() -> PathBuf {
-    std::env::temp_dir().join("prime-agent-user")
+    std::env::temp_dir().join("pa-x-user")
 }
 
 /// Read the effective uid without libc: `/proc/self/status` on Linux,
@@ -56,7 +56,7 @@ pub fn default_daemon_socket_path() -> PathBuf {
 #[cfg(not(unix))]
 #[must_use]
 pub fn default_daemon_socket_path() -> PathBuf {
-    PathBuf::from(r"\\.\pipe\prime-agent-daemon")
+    PathBuf::from(r"\\.\pipe\pa-x-daemon")
 }
 
 /// Worker endpoint next to the supervisor's: hashed supervisor key plus the
@@ -76,7 +76,7 @@ pub fn worker_socket_path(supervisor_socket_path: &Path, worker_id: &str) -> Pat
 pub fn worker_socket_path(supervisor_socket_path: &Path, worker_id: &str) -> PathBuf {
     let key = hash_key(&supervisor_socket_path.to_string_lossy(), 12);
     PathBuf::from(format!(
-        r"\\.\pipe\prime-agent-worker-{key}-{}",
+        r"\\.\pipe\pa-x-worker-{key}-{}",
         &worker_id[..12.min(worker_id.len())]
     ))
 }
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn worker_socket_names_are_deterministic() {
-        let supervisor = Path::new("/tmp/prime-agent-1/daemon.sock");
+        let supervisor = Path::new("/tmp/pa-x-1/daemon.sock");
         let a = worker_socket_path(supervisor, "0123456789abcdef");
         let b = worker_socket_path(supervisor, "fedcba9876543210");
         assert_ne!(a, b);
@@ -113,13 +113,13 @@ mod tests {
     fn windows_endpoints_are_the_ts_pipe_names() {
         assert_eq!(
             default_daemon_socket_path(),
-            PathBuf::from(r"\\.\pipe\prime-agent-daemon")
+            PathBuf::from(r"\\.\pipe\pa-x-daemon")
         );
-        let supervisor = Path::new(r"\\.\pipe\prime-agent-daemon");
+        let supervisor = Path::new(r"\\.\pipe\pa-x-daemon");
         let a = worker_socket_path(supervisor, "0123456789abcdef");
         let rendered = a.to_string_lossy();
         assert!(
-            rendered.starts_with(r"\\.\pipe\prime-agent-worker-"),
+            rendered.starts_with(r"\\.\pipe\pa-x-worker-"),
             "the worker pipe namespace: {rendered}"
         );
         assert!(

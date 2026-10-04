@@ -111,6 +111,10 @@ impl SessionUi {
             self.note("/traces is not available in this client yet", view);
             return Ok(());
         };
+        if !traces.0.supported() {
+            self.note("Trace sharing is OFF (disabled by pa-x).", view);
+            return Ok(());
+        }
         let command = resolved.args.trim().to_lowercase();
         // TS reads the connection state for the session file (and the
         // upload-all sweep for the session dir).

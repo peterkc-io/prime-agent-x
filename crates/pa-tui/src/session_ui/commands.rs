@@ -556,6 +556,13 @@ impl SessionUi {
             // sessions and configuration (~/.prime/agent) are never
             // touched.
             "update" => {
+                if let Some(reason) = self
+                    .update_commands
+                    .as_ref()
+                    .and_then(|update| update.0.unavailable_reason())
+                {
+                    return Err(pa_types::fork_identity::UpdateUnavailable(reason).into());
+                }
                 if !resolved.args.trim().is_empty() {
                     view.editor.set_text(text);
                     self.error_row("Usage: /update", view);

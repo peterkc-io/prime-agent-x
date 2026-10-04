@@ -35,7 +35,7 @@ fn isolated_home() -> tempfile::TempDir {
 }
 
 fn run(home: &Path, args: &[&str], script: &Value) -> (String, String, i32) {
-    let bin = env!("CARGO_BIN_EXE_prime-agent");
+    let bin = env!("CARGO_BIN_EXE_pa-x");
     let output = Command::new(bin)
         .args(args)
         .env("HOME", home)

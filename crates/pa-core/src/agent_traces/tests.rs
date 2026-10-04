@@ -4,6 +4,18 @@
 //! resolution, the preview, the find walk, and the outbox entry hash.
 
 use super::*;
+
+// Protocol coverage remains for the carried upstream mechanism. The separate
+// fork_tests module verifies the fixed-off public product entries.
+async fn upload_trace_file(options: &TraceUploadOptions<'_>) -> TraceUploadResult {
+    let result = super::upload::perform_agent_trace_upload_upstream(options, None).await;
+    log_agent_trace_outcome(options.agent_dir, options.session_file, &result);
+    result
+}
+
+async fn upload_all_traces(options: &TraceUploadAllOptions<'_>) -> TraceUploadAllResult {
+    super::upload_all::upload_all_traces_impl(options, false).await
+}
 use std::collections::VecDeque;
 use std::future::Future;
 use std::io::Write as _;
@@ -114,7 +126,7 @@ impl Fixture {
 
 /// The engine reads process env (the credential keys); the tests that
 /// touch it serialize on one lock.
-fn env_lock() -> std::sync::MutexGuard<'static, ()> {
+pub(super) fn env_lock() -> std::sync::MutexGuard<'static, ()> {
     static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
     LOCK.lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)

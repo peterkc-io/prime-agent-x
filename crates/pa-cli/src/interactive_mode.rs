@@ -55,7 +55,7 @@ mod tests;
 
 /// Run the interactive TUI attached to the daemon. Returns the exit code.
 pub fn run_interactive_mode(options: &RunOptions) -> Result<i32> {
-    let socket_path = resolve_socket_path(options.daemon_socket.as_deref());
+    let socket_path = resolve_socket_path(options.daemon_socket.as_deref())?;
     let configuration_load_started = std::time::Instant::now();
     let (tui_options, pending_onboarding_stages) = build_tui_options(
         options,
@@ -469,9 +469,11 @@ async fn run_agents_view_flow(
 
 /// `--daemon-socket` value, the `PRIME_AGENT_DAEMON_SOCKET` environment,
 /// or the per-user default socket path (precedence in that order).
-#[must_use]
-pub fn resolve_socket_path(daemon_socket: Option<&str>) -> PathBuf {
-    config::resolve_daemon_socket_path(daemon_socket)
+///
+/// # Errors
+/// Returns an error for an upstream socket or a failed path resolution.
+pub fn resolve_socket_path(daemon_socket: Option<&str>) -> Result<PathBuf> {
+    Ok(config::resolve_daemon_socket_path(daemon_socket)?)
 }
 
 fn build_tui_options(

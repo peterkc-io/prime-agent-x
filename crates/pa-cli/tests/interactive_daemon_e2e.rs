@@ -400,7 +400,7 @@ fn spawn_supervisor(dir: &Path) -> Supervisor {
     let socket = dir.join("daemon.sock");
     let agent_dir = dir.join("agent");
     std::fs::create_dir_all(&agent_dir).expect("agent dir");
-    let mut command = Command::new(env!("CARGO_BIN_EXE_prime-agent"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
     command
         .args(["--mode", "daemon", "--daemon-socket"])
         .arg(&socket)
@@ -1476,7 +1476,7 @@ async fn ensure_daemon_running_spawns_supervisor_and_tui_attaches() {
     let _guard = DetachedDaemon {
         socket: socket.clone(),
     };
-    let exe = std::path::PathBuf::from(env!("CARGO_BIN_EXE_prime-agent"));
+    let exe = std::path::PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
     pa_cli::ensure_daemon_running_with(&exe, &socket, dir.path())
         .await
         .expect("spawn the daemon");

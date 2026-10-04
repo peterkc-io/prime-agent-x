@@ -80,6 +80,10 @@ pub fn requested_installer_channel(flag: Option<UpdateChannel>) -> &'static str 
 /// Run the update command: the funnel (the installer script owns the
 /// whole move) or the `--check` report. Returns the process exit code.
 pub fn run(options: &UpdateOptions) -> i32 {
+    if pa_types::fork_identity::UPDATES_DISABLED {
+        eprint!("{}", pa_types::fork_identity::UPDATE_INSTRUCTIONS);
+        return 1;
+    }
     let Ok(runtime) = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()

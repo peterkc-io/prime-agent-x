@@ -69,6 +69,7 @@ impl BashOperations for LocalBashOperations {
             crate::platform::process::set_new_process_group(&mut process);
             crate::platform::process::set_no_window(&mut process);
 
+            pa_types::fork_identity::strip_internal_environment(&mut process);
             let mut child = process.spawn()?;
 
             let pid = child.id() as i32;
@@ -178,3 +179,7 @@ impl BashOperations for LocalBashOperations {
         })
     }
 }
+
+#[cfg(all(test, unix))]
+#[path = "fork_bash_tests.rs"]
+mod fork_tests;

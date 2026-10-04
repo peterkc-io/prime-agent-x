@@ -14,6 +14,8 @@
 //! original parsed JSON.
 
 pub mod ai;
+pub use pa_x_identity as fork_identity;
+
 pub mod daemon;
 pub mod goal;
 pub mod incident;

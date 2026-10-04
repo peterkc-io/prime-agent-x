@@ -6,7 +6,7 @@ use std::path::Path;
 use std::process::Command;
 
 fn run(sandbox: &Path, args: &[&str], env: &[(&str, &str)]) -> (Option<i32>, String) {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_prime-agent"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
     command
         .args(args)
         .env("PRIME_AGENT_CODING_AGENT_DIR", sandbox.join("agent"))
@@ -39,7 +39,10 @@ fn status_on_and_off_round_trip() {
 
     let (code, out) = run(sandbox, &["telemetry"], &[]);
     assert_eq!(code, Some(0), "{out}");
-    assert!(out.contains("Telemetry is on (on by default)."), "{out}");
+    assert!(
+        out.contains("Telemetry is off (disabled by pa-x)."),
+        "{out}"
+    );
     assert!(out.contains("Installation id: not created yet"), "{out}");
 
     let (code, out) = run(sandbox, &["telemetry", "off"], &[]);
@@ -48,7 +51,7 @@ fn status_on_and_off_round_trip() {
     assert_eq!(saved_switch(sandbox), serde_json::json!(false));
     let (_, out) = run(sandbox, &["telemetry", "status"], &[]);
     assert!(
-        out.contains("Telemetry is off (turned off in settings)."),
+        out.contains("Telemetry is off (disabled by pa-x)."),
         "{out}"
     );
 
@@ -56,9 +59,7 @@ fn status_on_and_off_round_trip() {
     assert_eq!(code, Some(0), "{out}");
     assert_eq!(saved_switch(sandbox), serde_json::json!(true));
     assert!(
-        out.contains(
-            "Saved telemetry on in settings, but it stays off (forced off by DO_NOT_TRACK)."
-        ),
+        out.contains("Saved telemetry on in settings, but it stays off (disabled by pa-x)."),
         "{out}"
     );
 

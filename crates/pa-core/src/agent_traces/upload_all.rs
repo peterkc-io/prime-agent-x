@@ -126,6 +126,13 @@ pub fn find_trace_files(session_dir: &Path) -> Vec<PathBuf> {
 /// Panics if a per-file result slot mutex is poisoned, i.e. if another
 /// worker panicked while holding that lock.
 pub async fn upload_all_traces(options: &TraceUploadAllOptions<'_>) -> TraceUploadAllResult {
+    upload_all_traces_impl(options, true).await
+}
+
+pub(super) async fn upload_all_traces_impl(
+    options: &TraceUploadAllOptions<'_>,
+    enforce_fork_policy: bool,
+) -> TraceUploadAllResult {
     let session_dir = options.session_dir.map_or_else(
         || {
             // TS `getSessionsDir()`: the env override expanded, else the
@@ -190,7 +197,12 @@ pub async fn upload_all_traces(options: &TraceUploadAllOptions<'_>) -> TraceUplo
                     cancel: options.cancel,
                     on_upload_delay: options.on_upload_delay.clone(),
                 };
-                let result = perform_agent_trace_upload(&upload_options, Some(&gate)).await;
+                let result = if enforce_fork_policy {
+                    perform_agent_trace_upload(&upload_options, Some(&gate)).await
+                } else {
+                    super::upload::perform_agent_trace_upload_upstream(&upload_options, Some(&gate))
+                        .await
+                };
                 log_agent_trace_outcome(options.agent_dir, Some(session_file), &result);
                 if cancelled() && matches!(result, TraceUploadResult::Failed { .. }) {
                     return;

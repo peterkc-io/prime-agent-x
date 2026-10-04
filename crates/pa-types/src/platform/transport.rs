@@ -159,6 +159,7 @@ impl UnixSocketAddress {
 /// address or if binding the listener fails.
 #[cfg(unix)]
 pub async fn bind_transport(path: &Path) -> Result<Box<dyn TransportListener>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let address = UnixSocketAddress::new(path)?;
     let listener = tokio::net::UnixListener::bind(address.effective())?;
     Ok(Box::new(listener))
@@ -172,6 +173,7 @@ pub async fn bind_transport(path: &Path) -> Result<Box<dyn TransportListener>> {
 /// address or if the connection attempt fails.
 #[cfg(unix)]
 pub async fn connect_transport(path: &Path) -> Result<Box<dyn TransportStream>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let address = UnixSocketAddress::new(path)?;
     let stream = tokio::net::UnixStream::connect(address.effective()).await?;
     Ok(Box::new(stream))
@@ -273,6 +275,7 @@ fn fnv1a64(bytes: &str) -> u64 {
 /// surface) or the named-pipe listener cannot be created.
 #[cfg(windows)]
 pub async fn bind_transport(path: &Path) -> Result<Box<dyn TransportListener>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let name = pipe_name(path)?;
     let listener = super::windows_pipe::NamedPipeListener::bind(&name)?;
     Ok(Box::new(listener))
@@ -287,6 +290,7 @@ pub async fn bind_transport(path: &Path) -> Result<Box<dyn TransportListener>> {
 /// busy-instance retry window.
 #[cfg(windows)]
 pub async fn connect_transport(path: &Path) -> Result<Box<dyn TransportStream>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let name = pipe_name(path)?;
     let client = super::windows_pipe::connect(&name).await?;
     Ok(Box::new(client))
@@ -331,6 +335,7 @@ impl BlockingTransportStream for std::os::unix::net::UnixStream {
 /// address or if the blocking connection attempt fails.
 #[cfg(unix)]
 pub fn connect_blocking(path: &Path) -> std::io::Result<Box<dyn BlockingTransportStream>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let address = UnixSocketAddress::new(path).map_err(std::io::Error::other)?;
     let stream = std::os::unix::net::UnixStream::connect(address.effective())?;
     Ok(Box::new(stream))
@@ -344,6 +349,7 @@ pub fn connect_blocking(path: &Path) -> std::io::Result<Box<dyn BlockingTranspor
 /// surface) or the blocking connection attempt fails.
 #[cfg(windows)]
 pub fn connect_blocking(path: &Path) -> std::io::Result<Box<dyn BlockingTransportStream>> {
+    crate::fork_identity::reject_upstream_socket(path)?;
     let name = pipe_name(path).map_err(std::io::Error::other)?;
     let client = super::windows_pipe::BlockingPipeClient::connect(&name)?;
     Ok(Box::new(client))

@@ -555,7 +555,7 @@ async fn session_counters_ride_session_ended() {
 #[tokio::test]
 // Keep the live env switch stable across the test's awaits.
 #[allow(clippy::await_holding_lock)]
-async fn build_client_reuses_the_ts_installation_id_and_mirrors() {
+async fn build_client_is_inert_despite_a_saved_installation_id() {
     let _env_lock = crate::packages::test_support::ENV_MUTEX
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
@@ -570,7 +570,11 @@ async fn build_client_reuses_the_ts_installation_id_and_mirrors() {
     .unwrap();
     let settings = crate::settings::SettingsManager::create(dir.path(), &agent_dir);
     let client = build_client(&settings, &agent_dir);
-    assert_eq!(client.install_id(), ts_id);
+    assert_ne!(
+        client.install_id(),
+        ts_id,
+        "the inert client does not reuse the shared id"
+    );
     client.track("agent started", base_properties("interactive"));
     client.flush().await.unwrap();
     // The live switch gates every sink, the mirror included: the repo's
@@ -1349,14 +1353,14 @@ async fn off_period_run_facts_never_send() {
 /// the boundary cache; this proves only the raw switch has no cache of
 /// its own.
 #[test]
-fn recording_switch_flips_immediately_with_the_settings() {
+fn recording_switch_stays_off_with_any_saved_setting() {
     let _env = CleanTelemetryEnv::default();
     let dir = tempfile::tempdir().unwrap();
     let agent_dir = dir.path().join("agent");
     let mut settings = crate::settings::SettingsManager::create(dir.path(), &agent_dir);
     settings.set_telemetry_enabled(true).unwrap();
     let switch = telemetry_enabled_switch(dir.path(), &agent_dir);
-    assert!((switch.enabled)(), "on in settings records");
+    assert!(!(switch.enabled)(), "pa-x ignores the saved opt-in");
 
     // The off lands without a cache window: nothing the seams ask
     // after the flip may still see the pre-flip answer.
@@ -1365,7 +1369,7 @@ fn recording_switch_flips_immediately_with_the_settings() {
 
     // The re-enable lands the same way.
     settings.set_telemetry_enabled(true).unwrap();
-    assert!((switch.enabled)(), "the on applies immediately too");
+    assert!(!(switch.enabled)(), "pa-x also ignores a later opt-in");
 }
 
 /// The opt-out is the settings write itself: no telemetry state can

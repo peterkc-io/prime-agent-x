@@ -57,6 +57,16 @@ pub(super) async fn perform_agent_trace_upload(
     options: &TraceUploadOptions<'_>,
     before_request: Option<&TraceRequestGate>,
 ) -> TraceUploadResult {
+    if pa_types::fork_identity::TRACES_DISABLED {
+        return TraceUploadResult::Disabled;
+    }
+    perform_agent_trace_upload_upstream(options, before_request).await
+}
+
+pub(super) async fn perform_agent_trace_upload_upstream(
+    options: &TraceUploadOptions<'_>,
+    before_request: Option<&TraceRequestGate>,
+) -> TraceUploadResult {
     if options.require_enabled && !options.enabled() {
         return TraceUploadResult::Disabled;
     }

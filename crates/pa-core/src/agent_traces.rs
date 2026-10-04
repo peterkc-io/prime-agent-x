@@ -21,6 +21,8 @@ use serde_json::{json, Value};
 // through the facade bindings and re-exports (the manager stage-1
 // precedent, #3039).
 #[cfg(test)]
+mod fork_tests;
+#[cfg(test)]
 mod tests;
 
 // The HTTP transport concern (the response/error records, the injectable

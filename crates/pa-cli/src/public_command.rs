@@ -673,6 +673,10 @@ fn check_invocation(args: &[String]) -> Option<crate::installer_update::UpdateOp
 }
 
 fn run_update(args: &[String]) -> PublicCommandResult {
+    if pa_types::fork_identity::UPDATES_DISABLED {
+        eprint!("{}", pa_types::fork_identity::UPDATE_INSTRUCTIONS);
+        return handled_with_exit(1);
+    }
     // `--check` (alias `--version`) reports without installing, optionally
     // for one channel flag; mixed with anything else the parse below
     // rejects it.

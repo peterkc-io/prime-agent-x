@@ -153,7 +153,7 @@ fn main_impl(args: &[String], runtime: &dyn mode::Runtime) -> Result<i32, String
     }
 
     if parsed.version {
-        println!("{}", crate::config::version());
+        println!("{} {}", crate::config::APP_NAME, crate::config::version());
         return Ok(0);
     }
     if parsed.help {

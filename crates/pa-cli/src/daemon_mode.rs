@@ -9,7 +9,7 @@ use crate::config;
 
 /// Run the daemon supervisor in-process until it shuts down.
 pub fn run_daemon_mode(daemon_socket: Option<&str>) -> Result<i32> {
-    let socket_path = config::resolve_daemon_socket_path(daemon_socket);
+    let socket_path = config::resolve_daemon_socket_path(daemon_socket)?;
     let agent_dir = config::get_agent_dir();
     let options = pa_daemon::supervisor::SupervisorOptions {
         socket_path,

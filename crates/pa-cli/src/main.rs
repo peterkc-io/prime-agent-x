@@ -1,4 +1,5 @@
 fn main() {
+    pa_types::fork_identity::initialize_process();
     // Allocator tuning before any thread spawns: the session-load and
     // attach-snapshot phases are large transient bursts, and glibc's
     // per-thread arenas otherwise keep each burst's high-water pages

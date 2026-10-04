@@ -188,7 +188,7 @@ fn graceful_shutdown(socket: &Path) -> Option<u32> {
 // reap inline instead.
 #[allow(clippy::zombie_processes)]
 fn spawn_supervisor(socket: &Path, agent_dir: &Path, session_dir: &Path) -> Supervisor {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_prime-agent"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
     command
         .args(["--mode", "daemon", "--daemon-socket"])
         .arg(socket)
@@ -400,7 +400,7 @@ async fn interactive_fork_launch_copies_and_the_daemon_opens_the_fork() {
     // The source session: a real print-mode run of the real binary (the
     // same isolated-home contract the print runtime e2e uses). The print
     // runtime reads the script env as the script JSON itself.
-    let seeded = Command::new(env!("CARGO_BIN_EXE_prime-agent"))
+    let seeded = Command::new(env!("CARGO_BIN_EXE_pa-x"))
         .args(["-p", "seedphrase4fork tell me"])
         .current_dir(&cwd)
         .env("PRIME_AGENT_CODING_AGENT_DIR", &agent_dir)

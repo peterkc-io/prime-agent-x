@@ -13,8 +13,14 @@ use pa_core::update::installer::{self, InstallerOutput};
 pub struct ClientUpdate;
 
 impl pa_tui::update_command::UpdateCommands for ClientUpdate {
+    fn unavailable_reason(&self) -> Option<&'static str> {
+        Some(pa_types::fork_identity::UPDATE_INSTRUCTIONS)
+    }
     fn run_update(&self) -> pa_tui::update_command::UpdateRunFuture {
         Box::pin(async {
+            if pa_types::fork_identity::UPDATES_DISABLED {
+                return Err(pa_types::fork_identity::UPDATE_INSTRUCTIONS.to_string());
+            }
             match installer::run_installer(
                 Some(crate::installer_update::requested_installer_channel(None)),
                 InstallerOutput::Capture,

@@ -67,7 +67,7 @@ fn sandbox(settings: &serde_json::Value) -> Sandbox {
 }
 
 fn run(sandbox: &Sandbox, script: &serde_json::Value) -> (String, String, i32) {
-    let output = Command::new(env!("CARGO_BIN_EXE_prime-agent"))
+    let output = Command::new(env!("CARGO_BIN_EXE_pa-x"))
         .args(["--mode", "json", "-p", "hi"])
         .env("HOME", sandbox.home.path())
         .env("PRIME_AGENT_CODING_AGENT_DIR", &sandbox.agent_dir)
