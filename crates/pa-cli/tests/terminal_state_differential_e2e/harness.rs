@@ -334,7 +334,10 @@ impl Termios {
             oflag: raw.c_oflag,
             cflag: raw.c_cflag,
             lflag: raw.c_lflag,
+            #[cfg(target_os = "linux")]
             line: raw.c_line,
+            #[cfg(not(target_os = "linux"))]
+            line: 0,
             cc: raw.c_cc,
         }
     }
@@ -575,7 +578,7 @@ pub(crate) fn spawn_child(spec: &ChildSpec, socket: &Path, slave: &OwnedFd) -> C
     // and claim the pty slave as the controlling terminal.
     pub(crate) fn claim_controlling_tty(fd: i32) -> std::io::Result<()> {
         nix::unistd::setsid()?;
-        let rc = unsafe { libc::ioctl(fd, libc::TIOCSCTTY as libc::c_ulong, 0) };
+        let rc = unsafe { libc::ioctl(fd, libc::c_ulong::from(libc::TIOCSCTTY), 0) };
         if rc < 0 {
             return Err(std::io::Error::last_os_error());
         }
