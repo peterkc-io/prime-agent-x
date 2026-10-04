@@ -47,7 +47,8 @@
 //! Reuses the differential's pty harness (the mock supervisor, the
 //! recording master reader, the termios capture) via path-includes; the
 //! harness's own routes are unchanged.
-#![cfg(unix)]
+// The ptsname_r call and /proc fd audit require Linux.
+#![cfg(target_os = "linux")]
 
 // The differential's own binary exercises every harness entry; this
 // binary's routes use a subset, so the shared module's wider surface is
