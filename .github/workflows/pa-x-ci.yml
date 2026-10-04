@@ -1,0 +1,91 @@
+# pa-x fork CI: the four `make check` commands, as the Makefile has them, in
+# one job on one runner. Fork-owned (pa-x-*), so it is not an upstream seam.
+#
+# One job, not upstream ci.yml's eight test shards: each shard recompiles its
+# test binaries, so sharding buys wall-clock time with extra runner minutes.
+# The fork runs this check rarely (wip branches, later fork PRs and the sync
+# job), so one warm-cached job is the cheaper shape.
+#
+# Runner choice, first match wins:
+#   1. the `runner` input of a manual dispatch;
+#   2. the repository variable PA_X_CI_RUNNER (switch runners without an edit);
+#   3. blacksmith-8vcpu-ubuntu-2404 (x64, like upstream CI's test runners).
+# Blacksmith bills free-tier minutes per 2 vCPU: an 8 vCPU minute costs 4.
+# ubuntu-24.04 (GitHub-hosted) is free for a public repository, but slower.
+name: pa-x-ci
+
+on:
+  # A pushed wip/** branch runs the check without touching main.
+  push:
+    branches: ["wip/**"]
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner label (default: the PA_X_CI_RUNNER variable, else blacksmith-8vcpu-ubuntu-2404)"
+        required: false
+        type: choice
+        default: default
+        options:
+          - default
+          - blacksmith-4vcpu-ubuntu-2404
+          - blacksmith-8vcpu-ubuntu-2404
+          - blacksmith-16vcpu-ubuntu-2404
+          - blacksmith-8vcpu-ubuntu-2404-arm
+          - ubuntu-24.04
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pa-x-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  # Some upstream tests hash git commits made with zone-less dates.
+  TZ: UTC
+
+jobs:
+  check:
+    name: make check
+    runs-on: ${{ (inputs.runner != '' && inputs.runner != 'default') && inputs.runner || vars.PA_X_CI_RUNNER || 'blacksmith-8vcpu-ubuntu-2404' }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e # 1.98.1 action pin; the SHA selects the toolchain
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          cache-on-failure: true
+          shared-key: pa-x-ci
+      - name: Install uv (the kernel venv bootstrap below uses it)
+        run: |
+          python3 -m pip install --user uv
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: cargo fmt --all --check
+        run: cargo fmt --all --check
+      - name: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      # The kernel e2e suites need a ready kernel venv (upstream ci.yml's
+      # bootstrap step); the bootstrap needs the debug prime-agent binary.
+      - name: Build the workspace bins and bootstrap the kernel venv
+        run: |
+          cargo build --workspace --bins
+          ./target/debug/prime-agent --prime-agent-bootstrap
+      - name: cargo test --workspace
+        shell: bash
+        run: cargo test --workspace 2>&1 | tee "$RUNNER_TEMP/cargo-test.log"
+      - name: Upload the test log (the ignored and flaky test record)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cargo-test-log
+          path: ${{ runner.temp }}/cargo-test.log
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: cargo build --release --workspace
+        run: cargo build --release --workspace
