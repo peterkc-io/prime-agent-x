@@ -76,9 +76,18 @@ jobs:
         run: |
           cargo build --workspace --bins
           ./target/debug/prime-agent --prime-agent-bootstrap
+      # --no-fail-fast runs every test binary after a failure, so one run
+      # gives the full failure and ignored-test list. The pass/fail result is
+      # the same as `make check`'s plain `cargo test --workspace`.
       - name: cargo test --workspace
+        id: test
         shell: bash
-        run: cargo test --workspace 2>&1 | tee "$RUNNER_TEMP/cargo-test.log"
+        run: cargo test --workspace --no-fail-fast 2>&1 | tee "$RUNNER_TEMP/cargo-test.log"
+      # The known-flake rule (docs/fork/SYNC.md): each failed test, alone,
+      # 20 times. The counts go to the job summary; the job stays failed.
+      - name: Rerun each failed test alone 20 times
+        if: failure() && steps.test.conclusion == 'failure'
+        run: python3 scripts/pa-x/rerun_failed.py "$RUNNER_TEMP/cargo-test.log" 20
       - name: Upload the test log (the ignored and flaky test record)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
