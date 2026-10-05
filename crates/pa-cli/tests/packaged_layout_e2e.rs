@@ -446,7 +446,7 @@ fn hostile_child_assertions(staged: &Path) {
     assert_eq!(output.status.code(), Some(0));
     assert_eq!(
         String::from_utf8_lossy(&output.stdout).trim(),
-        HOSTILE_STAGED_VERSION,
+        format!("pa-x {HOSTILE_STAGED_VERSION}"),
         "the hostile PI_PACKAGE_DIR must not win: {}",
         String::from_utf8_lossy(&output.stderr)
     );

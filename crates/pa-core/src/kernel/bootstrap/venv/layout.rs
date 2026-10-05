@@ -25,10 +25,7 @@ pub fn kernel_venv_dir() -> PathBuf {
             return expand_home(&override_dir);
         }
     }
-    home_dir()
-        .join(".prime")
-        .join("agent")
-        .join("kernel-venv-pa-x")
+    home_dir().join(".prime").join("agent").join("kernel-venv")
 }
 
 fn xdg_kernel_venv_dir() -> PathBuf {

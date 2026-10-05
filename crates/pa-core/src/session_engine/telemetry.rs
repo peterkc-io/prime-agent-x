@@ -1172,9 +1172,6 @@ pub fn build_client(
     settings: &crate::settings::SettingsManager,
     agent_dir: &std::path::Path,
 ) -> TelemetryClient {
-    if !telemetry_switch(settings).enabled() {
-        return TelemetryClient::inert();
-    }
     let mut config = TelemetryClientConfig::new("disabled");
     let install_id = pa_telemetry::install_id(agent_dir);
     match install_id {

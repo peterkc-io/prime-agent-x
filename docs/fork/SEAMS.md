@@ -38,7 +38,7 @@ not the timeout seam. It remains a future merge-conflict risk.
 | `crates/pa-cli/src/interactive_mode.rs` | Propagate guarded socket resolution. | Config tests and live socket coexistence scenario. |
 | `crates/pa-cli/src/interactive_mode/daemon.rs` | Reject upstream sockets before stale-daemon checks or replacement. | Socket unit tests and live coexistence scenario. |
 | `crates/pa-cli/src/lib.rs` | Prefix version output with pa-x. | Local install version check. |
-| `crates/pa-cli/src/main.rs` | Reset inherited upstream process state before threading. | Seven identity tests and process environment scenarios. |
+| `crates/pa-cli/src/main.rs` | Initialize fork lineage and default venv override before threading or dispatch. | Seven identity tests; bare release runtime and native venv override regression. |
 | `crates/pa-cli/src/print_runtime.rs` | Propagate socket rejection before opening or leasing a session. | Socket source tests and print-session fixture. |
 | `crates/pa-cli/src/public_command.rs` | Block update and alias before any installer requests. | Three fork update refusal tests. |
 | `crates/pa-cli/tests/acp_config_option_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
@@ -69,13 +69,13 @@ not the timeout seam. It remains a future merge-conflict risk.
 | `crates/pa-cli/tests/mcp_view_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
 | `crates/pa-cli/tests/package_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
 | `crates/pa-cli/tests/package_resources_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
-| `crates/pa-cli/tests/packaged_layout_e2e.rs` | Use pa-x identity and default venv; mark trusted override fixtures. | Packaged layout and local bundle checks. |
+| `crates/pa-cli/tests/packaged_layout_e2e.rs` | Use Cargo executable pa-x and its version prefix, preserving hostile-env isolation. | Exact hostile packaged-layout regression and lead-owned Linux CI. |
 | `crates/pa-cli/tests/print_runtime_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
 | `crates/pa-cli/tests/rpc_mode_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
 | `crates/pa-cli/tests/slow_drain_exit_guard_e2e.rs` | macOS portability; upstream CI is Linux-only. | Native focused terminal checks; Linux baseline comparison (lead-owned). |
 | `crates/pa-cli/tests/subagent_panel_nav_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
 | `crates/pa-cli/tests/subagent_panel_nested_count_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
-| `crates/pa-cli/tests/telemetry_command_e2e.rs` | Use pa-x and assert the fixed-off reason while preserving saved preferences. | Focused telemetry command integration target. |
+| `crates/pa-cli/tests/telemetry_command_e2e.rs` | Use Cargo executable pa-x; retain upstream debug telemetry assertions. | Original debug command integration test and exact telemetry regressions. |
 | `crates/pa-cli/tests/terminal_state_differential_e2e/harness.rs` | macOS portability; upstream CI is Linux-only. | Native focused terminal checks; Linux baseline comparison (lead-owned). |
 | `crates/pa-cli/tests/termios_process_exit_e2e.rs` | Linux-only test code; upstream CI is Linux-only. | Linux integration suite (lead-owned). |
 | `crates/pa-cli/tests/view_switch_latency_e2e.rs` | Use Cargo executable pa-x in the existing fixture. | CLI integration target compilation and Linux suites (lead-owned). |
@@ -83,11 +83,10 @@ not the timeout seam. It remains a future merge-conflict risk.
 | `crates/pa-core/src/agent_traces/tests.rs` | Keep legacy protocol tests on private carried upstream machinery. | Legacy trace unit tests and separate public guard test. |
 | `crates/pa-core/src/agent_traces/upload.rs` | Disable every public single-file upload before requests, including forced options. | Recording fake returns Disabled with zero requests. |
 | `crates/pa-core/src/agent_traces/upload_all.rs` | Disable public upload-all before payload collection or requests; retain private protocol coverage. | Recording fake for upload-all and legacy protocol tests. |
-| `crates/pa-core/src/kernel/bootstrap/venv/layout.rs` | Separate the default kernel venv leaf name. | Actual session kernel venv inspection. |
+| `crates/pa-core/src/kernel/bootstrap/venv/layout.rs` | Keep the writable-dir fallback in the fork namespace; the entry point supplies the normal default. | Unchanged venv_dir_honors_override test; native library suite. |
 | `crates/pa-core/src/kernel/manager/startup.rs` | Remove internal role variables at the kernel spawn. | Actual session ipython environment inspection. |
-| `crates/pa-core/src/session_engine/telemetry.rs` | Return an inert client before install-id or sink setup when fixed off. | Focused telemetry unit suite. |
-| `crates/pa-core/src/session_engine/telemetry/status.rs` | Fix production switch off and endpoint None; preserve generic resolver tests. | Focused telemetry switch and status tests. |
-| `crates/pa-core/src/session_engine/telemetry/tests.rs` | Assert fixed-off factory behavior; serialize the unchanged mirror test with ENV_MUTEX. | 29 telemetry tests pass; upstream base checked, no mutex fix found. |
+| `crates/pa-core/src/session_engine/telemetry/status.rs` | Force release switch off before env/settings; endpoint None in every build; retain debug semantics. | Pure release-rule unit test, unchanged debug tests, and opt-in installed release scenario. |
+| `crates/pa-core/src/session_engine/telemetry/tests.rs` | Serialize the unchanged mirror test with the approved ENV_MUTEX prerequisite. | Full native library tests; original mirror and switch assertions retained. |
 | `crates/pa-core/src/tools/bash_local.rs` | Remove internal role variables immediately before bash spawn. | Actual BashOperations spawn and session kernel bash-helper environment inspection. |
 | `crates/pa-core/tests/abort_kernel_cell.rs` | Discover the fork default kernel venv without adding skips. | Linux kernel integration suites after pa-x bootstrap (lead-owned). |
 | `crates/pa-core/tests/kernel_capture_freshness.rs` | Discover the fork default kernel venv without adding skips. | Linux kernel integration suites after pa-x bootstrap (lead-owned). |

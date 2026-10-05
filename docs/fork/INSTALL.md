@@ -75,6 +75,13 @@ socket paths reject the upstream `prime-agent-<uid or user>` and
 `prime-agent-rust-<numeric uid>` directories before an operation opens them.
 Existing symlink parents are resolved for this check.
 
-Usage telemetry and trace uploads stay off even if shared settings opt in.
+Release usage telemetry and all public trace uploads stay off even if shared
+settings opt in. Debug builds retain upstream usage telemetry and its local
+mirror for tests; use an isolated HOME. The release client still creates the
+shared `telemetry.json` installation-id file, but never writes `telemetry.jsonl`.
+
+The executable sets its default venv through `PRIME_AGENT_KERNEL_VENV` before
+command dispatch. If that default parent is unwritable, bootstrap fails rather
+than using upstream's XDG fallback. Marked children can retain an explicit venv.
 See [FORK.md](FORK.md) for current and planned features, and
 [SEAMS.md](SEAMS.md) for the upstream change inventory.

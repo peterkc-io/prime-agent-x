@@ -30,7 +30,7 @@ upstream launcher can override its source defaults.
 | Inherited upstream role variables | No fork startup reset | Cleared in fresh processes |
 | Upstream socket use | No fork refusal | Rejected before connect, bind, or stale cleanup |
 | Updates | Upstream update path | Disabled with local install instructions |
-| Usage telemetry | Settings and environment control | Disabled regardless of saved opt-in |
+| Usage telemetry | Settings and environment control | Release switch forced off; debug behavior retained for tests |
 | Trace uploads | Saved opt-in and credentials | Disabled, including forced upload options |
 | Settings overlay | Not assessed in this comparison | Planned, not implemented |
 | Plugins and plugin workflows | Not assessed in this comparison | Planned, not implemented |
@@ -40,6 +40,15 @@ socket resolution, telemetry, and public single/all trace uploads. The public
 trace rejection test includes a reachable HTTP positive control. Carried
 upstream protocol tests still cover the private upload mechanism; they do not
 enable the fork's public path.
+
+Release builds never send usage telemetry or write `telemetry.jsonl`, even with
+saved and environment opt-ins. Debug builds retain upstream counting and the
+local mirror so the upstream tests stay unchanged. Use an isolated HOME for debug
+runs. No `telemetry-agx.jsonl` file is created.
+
+The upstream client factory still creates `telemetry.json` for its installation
+id, even when the release switch is off. This is a local write in the shared agent
+dir. The fork does not change installation-id handling.
 
 The native packer builds the local bundle. No upstream installation is replaced.
 [INSTALL.md](INSTALL.md) gives the commands and shared-state warning.
