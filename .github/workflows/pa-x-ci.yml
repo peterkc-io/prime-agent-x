@@ -72,10 +72,14 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       # The kernel e2e suites need a ready kernel venv (upstream ci.yml's
       # bootstrap step); the bootstrap needs the debug prime-agent binary.
+      # The fork renames the CLI binary to pa-x; upstream names it prime-agent.
+      # Use whichever this checkout builds, so the same file runs on both.
       - name: Build the workspace bins and bootstrap the kernel venv
         run: |
           cargo build --workspace --bins
-          ./target/debug/prime-agent --prime-agent-bootstrap
+          bin=./target/debug/pa-x
+          [ -x "$bin" ] || bin=./target/debug/prime-agent
+          "$bin" --prime-agent-bootstrap
       # --no-fail-fast runs every test binary after a failure, so one run
       # gives the full failure and ignored-test list. The pass/fail result is
       # the same as `make check`'s plain `cargo test --workspace`.
