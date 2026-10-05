@@ -100,5 +100,8 @@ jobs:
           path: ${{ runner.temp }}/cargo-test.log
           if-no-files-found: ignore
           retention-days: 14
+      # Build the release even when tests failed, so one run also proves the
+      # release build. The job still fails on any test failure.
       - name: cargo build --release --workspace
+        if: ${{ !cancelled() && (steps.test.conclusion == 'success' || steps.test.conclusion == 'failure') }}
         run: cargo build --release --workspace
