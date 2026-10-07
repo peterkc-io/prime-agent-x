@@ -8,7 +8,7 @@ use std::process::Command;
 pub const TRACES_DISABLED: bool = true;
 pub const UPDATES_DISABLED: bool = true;
 
-pub const UPDATE_INSTRUCTIONS: &str = "Automatic updates are disabled for pa-x.\nUpdate from a verified checkout:\n  scripts/pa-x/install-local.sh\nSee docs/fork/INSTALL.md.\n";
+pub const UPDATE_INSTRUCTIONS: &str = "Automatic updates are disabled for agx.\nUpdate from a verified checkout:\n  scripts/agx/install-local.sh\nSee docs/fork/INSTALL.md.\n";
 
 /// A disabled update closes the TUI after its normal terminal cleanup.
 #[derive(Debug)]
@@ -52,7 +52,7 @@ fn upstream_environment_key(key: &OsStr) -> bool {
 
 /// Call before any threads start. Marked fork children keep their inherited environment.
 pub fn initialize_process() {
-    if std::env::var_os("PA_X_PROCESS").is_none() {
+    if std::env::var_os("AGX_PROCESS").is_none() {
         let keys: Vec<_> = std::env::vars_os()
             .map(|(key, _)| key)
             .filter(|key| internal_key(key) || upstream_environment_key(key))
@@ -61,7 +61,7 @@ pub fn initialize_process() {
             std::env::remove_var(key);
         }
     }
-    std::env::set_var("PA_X_PROCESS", "1");
+    std::env::set_var("AGX_PROCESS", "1");
 }
 
 /// Session shell and kernel processes cannot inherit internal daemon roles.
@@ -152,7 +152,7 @@ pub fn reject_upstream_socket(path: &Path) -> io::Result<()> {
         {
             Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
-                format!("pa-x refuses upstream socket: {}", path.display()),
+                format!("agx refuses upstream socket: {}", path.display()),
             ))
         } else {
             Ok(())
@@ -165,7 +165,7 @@ pub fn reject_upstream_socket(path: &Path) -> io::Result<()> {
     {
         return Err(io::Error::new(
             io::ErrorKind::PermissionDenied,
-            format!("pa-x refuses upstream socket: {}", resolved.display()),
+            format!("agx refuses upstream socket: {}", resolved.display()),
         ));
     }
     Ok(())
@@ -212,8 +212,8 @@ mod tests {
             assert!(upstream_directory(OsStr::new(name)), "{name}");
         }
         for name in [
-            "pa-x-user",
-            "pa-x-501",
+            "agx-user",
+            "agx-501",
             "prime-agent",
             "prime-agent-rust-user",
             "prime-agent-custom",
@@ -235,7 +235,7 @@ mod tests {
             let error = reject_upstream_socket(&path).unwrap_err();
             assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
         }
-        assert!(reject_upstream_socket(&root.path().join("pa-x-user/daemon.sock")).is_ok());
+        assert!(reject_upstream_socket(&root.path().join("agx-user/daemon.sock")).is_ok());
         assert!(reject_upstream_socket(&root.path().join("custom/daemon.sock")).is_ok());
     }
 
@@ -261,29 +261,29 @@ mod tests {
             let mut command = Command::new(std::env::current_exe().unwrap());
             command.args(["--exact", "tests::startup_child", "--nocapture"]);
             command.env(
-                "PA_X_IDENTITY_TEST_CHILD",
+                "AGX_IDENTITY_TEST_CHILD",
                 if marked { "marked" } else { "unmarked" },
             );
-            command.env_remove("PA_X_PROCESS");
+            command.env_remove("AGX_PROCESS");
             if marked {
-                command.env("PA_X_PROCESS", "1");
+                command.env("AGX_PROCESS", "1");
             }
             for key in UPSTREAM_ENV {
                 command.env(key, "upstream");
             }
-            command.env("PA_X_KEEP", "retained");
+            command.env("AGX_KEEP", "retained");
             assert!(command.status().unwrap().success());
         }
     }
 
     #[test]
     fn startup_child() {
-        let Ok(case) = std::env::var("PA_X_IDENTITY_TEST_CHILD") else {
+        let Ok(case) = std::env::var("AGX_IDENTITY_TEST_CHILD") else {
             return;
         };
         initialize_process();
-        assert_eq!(std::env::var("PA_X_PROCESS").unwrap(), "1");
-        assert_eq!(std::env::var("PA_X_KEEP").unwrap(), "retained");
+        assert_eq!(std::env::var("AGX_PROCESS").unwrap(), "1");
+        assert_eq!(std::env::var("AGX_KEEP").unwrap(), "retained");
         for key in UPSTREAM_ENV {
             assert_eq!(std::env::var_os(key).is_some(), case == "marked", "{key}");
         }
@@ -293,7 +293,7 @@ mod tests {
     fn shell_and_kernel_child_commands_strip_internal_keys() {
         let mut command = Command::new("unused");
         command.env("PRIME_AGENT_INTERNAL_NEW_ROLE", "worker");
-        command.env("PA_X_KEEP", "retained");
+        command.env("AGX_KEEP", "retained");
         strip_internal_environment(&mut command);
         let keys: Vec<_> = command.get_envs().collect();
         assert!(keys
@@ -301,6 +301,6 @@ mod tests {
             .any(|(key, value)| *key == "PRIME_AGENT_INTERNAL_NEW_ROLE" && value.is_none()));
         assert!(keys
             .iter()
-            .any(|(key, value)| *key == "PA_X_KEEP" && *value == Some(OsStr::new("retained"))));
+            .any(|(key, value)| *key == "AGX_KEEP" && *value == Some(OsStr::new("retained"))));
     }
 }

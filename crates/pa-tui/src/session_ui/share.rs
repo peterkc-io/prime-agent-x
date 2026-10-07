@@ -112,7 +112,7 @@ impl SessionUi {
             return Ok(());
         };
         if !traces.0.supported() {
-            self.note("Trace sharing is OFF (disabled by pa-x).", view);
+            self.note("Trace sharing is OFF (disabled by agx).", view);
             return Ok(());
         }
         let command = resolved.args.trim().to_lowercase();

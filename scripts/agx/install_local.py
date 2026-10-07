@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and install a local pa-x bundle without touching prime-agent."""
+"""Build and install a local agx bundle without touching prime-agent."""
 
 import argparse
 import os
@@ -17,7 +17,7 @@ def install(skip_build=False, catalog_assets=None):
     home = Path.home()
     share = home / ".local" / "share"
     bins = home / ".local" / "bin"
-    destination = share / "pa-x"
+    destination = share / "agx"
     for path in (home, home / ".local", share, bins, destination):
         if path.is_symlink():
             raise ValueError(f"Refusing a symlinked install path: {path}")
@@ -29,12 +29,12 @@ def install(skip_build=False, catalog_assets=None):
              "--workspace"],
             cwd=ROOT, check=True,
         )
-    binary = ROOT / "target" / "release" / "pa-x"
+    binary = ROOT / "target" / "release" / "agx"
     if not binary.is_file():
-        raise FileNotFoundError(f"Build pa-x before --skip-build: {binary}")
+        raise FileNotFoundError(f"Build agx before --skip-build: {binary}")
     share.mkdir(parents=True, exist_ok=True)
     bins.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix=".pa-x-", dir=share) as temporary:
+    with tempfile.TemporaryDirectory(prefix=".agx-", dir=share) as temporary:
         temporary = Path(temporary)
         assets = catalog_assets
         if assets is None:
@@ -48,7 +48,7 @@ def install(skip_build=False, catalog_assets=None):
         output = temporary / "package"
         subprocess.run(
             [sys.executable, str(ROOT / "scripts/package_release.py"),
-             "--skip-build", "--binary", str(binary), "--binary-name", "pa-x",
+             "--skip-build", "--binary", str(binary), "--binary-name", "agx",
              "--catalog-assets", str(assets), "--out-dir", str(output)],
             cwd=ROOT, check=True,
         )
@@ -62,15 +62,15 @@ def install(skip_build=False, catalog_assets=None):
         try:
             packages[0].rename(destination)
             with tempfile.NamedTemporaryFile(
-                mode="w", prefix=".pa-x-", dir=bins, delete=False,
+                mode="w", prefix=".agx-", dir=bins, delete=False,
             ) as launcher:
                 launcher_path = Path(launcher.name)
                 launcher.write("#!/bin/sh\nexec " + shlex.quote(
-                    str(destination / "pa-x")
+                    str(destination / "agx")
                 ) + ' "$@"\n')
             try:
                 launcher_path.chmod(0o755)
-                launcher_path.replace(bins / "pa-x")
+                launcher_path.replace(bins / "agx")
             finally:
                 launcher_path.unlink(missing_ok=True)
         except (OSError, ValueError):
@@ -79,7 +79,7 @@ def install(skip_build=False, catalog_assets=None):
             if had_previous:
                 backup.rename(destination)
             raise
-    print(f"Installed {bins / 'pa-x'}")
+    print(f"Installed {bins / 'agx'}")
     print("Settings and sessions stay shared with prime-agent.")
 
 

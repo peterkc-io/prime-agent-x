@@ -25,14 +25,14 @@ impl TraceHttp for RecordingHttp {
 async fn fork_trace_entries_never_request_even_when_requirement_is_bypassed() {
     let _env = super::tests::env_lock();
     let previous = std::env::var_os("PRIME_AGENT_TRACES_API_KEY");
-    std::env::set_var("PRIME_AGENT_TRACES_API_KEY", "pa-x-test-key");
+    std::env::set_var("PRIME_AGENT_TRACES_API_KEY", "agx-test-key");
     let root = tempfile::tempdir().unwrap();
     let agent_dir = root.path().join("agent");
     let session_dir = root.path().join("sessions");
     std::fs::create_dir(&agent_dir).unwrap();
     std::fs::create_dir(&session_dir).unwrap();
     let session = session_dir.join("s.jsonl");
-    std::fs::write(&session, "{\"type\":\"session\",\"id\":\"pa-x-test\",\"timestamp\":\"2026-01-01T00:00:00.000Z\",\"cwd\":\"/w\",\"version\":3}\n{\"type\":\"message\",\"id\":\"m1\",\"parentId\":null,\"message\":{\"role\":\"user\",\"content\":\"sample\",\"timestamp\":0}}\n").unwrap();
+    std::fs::write(&session, "{\"type\":\"session\",\"id\":\"agx-test\",\"timestamp\":\"2026-01-01T00:00:00.000Z\",\"cwd\":\"/w\",\"version\":3}\n{\"type\":\"message\",\"id\":\"m1\",\"parentId\":null,\"message\":{\"role\":\"user\",\"content\":\"sample\",\"timestamp\":0}}\n").unwrap();
     let mut settings = crate::settings::SettingsManager::create(root.path(), &agent_dir);
     settings.set_agent_traces_enabled(true).unwrap();
     let http = RecordingHttp::default();

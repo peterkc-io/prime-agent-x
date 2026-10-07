@@ -21,7 +21,7 @@ async fn actual_bash_spawn_strips_explicit_internal_roles() {
                 "PRIME_AGENT_INTERNAL_DAEMON_WORKER".to_string(),
                 "1".to_string(),
             ),
-            ("PA_X_KEEP".to_string(), "retained".to_string()),
+            ("AGX_KEEP".to_string(), "retained".to_string()),
         ])),
     };
     let operations = LocalBashOperations {
@@ -33,7 +33,7 @@ async fn actual_bash_spawn_strips_explicit_internal_roles() {
         .unwrap();
     assert_eq!(code, Some(0));
     let output = String::from_utf8(captured.into_inner().unwrap()).unwrap();
-    assert!(output.contains("PA_X_KEEP=retained"));
+    assert!(output.contains("AGX_KEEP=retained"));
     assert!(!output
         .lines()
         .any(|line| line.starts_with("PRIME_AGENT_INTERNAL_")));

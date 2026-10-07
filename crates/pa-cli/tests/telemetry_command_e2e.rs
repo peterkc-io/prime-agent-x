@@ -6,7 +6,7 @@ use std::path::Path;
 use std::process::Command;
 
 fn run(sandbox: &Path, args: &[&str], env: &[(&str, &str)]) -> (Option<i32>, String) {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_agx"));
     command
         .args(args)
         .env("PRIME_AGENT_CODING_AGENT_DIR", sandbox.join("agent"))

@@ -38,7 +38,7 @@ impl TelemetrySwitch {
     #[must_use]
     pub fn reason(self) -> String {
         match self {
-            Self::ForkDisabled => "disabled by pa-x".to_string(),
+            Self::ForkDisabled => "disabled by agx".to_string(),
             Self::Default => "on by default".to_string(),
             Self::Settings(true) => "turned on in settings".to_string(),
             Self::Settings(false) => "turned off in settings".to_string(),

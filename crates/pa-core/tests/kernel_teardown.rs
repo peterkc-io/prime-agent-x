@@ -51,7 +51,7 @@ fn kernel_python() -> Option<PathBuf> {
         return Some(explicit);
     }
     let home = std::env::var("HOME").unwrap_or_default();
-    let candidate = PathBuf::from(format!("{home}/.prime/agent/kernel-venv-pa-x/bin/python"));
+    let candidate = PathBuf::from(format!("{home}/.prime/agent/kernel-venv-agx/bin/python"));
     if candidate.exists() {
         return Some(candidate);
     }

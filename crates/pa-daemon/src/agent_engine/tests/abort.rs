@@ -530,8 +530,8 @@ impl Drop for KernelEnvOverride {
 #[cfg(test)]
 fn live_kernel_python() -> Option<std::path::PathBuf> {
     let candidate = std::path::PathBuf::from(std::env::var("HOME").map_or_else(
-        |_| "/home/ubuntu/.prime/agent/kernel-venv-pa-x/bin/python".to_string(),
-        |home| format!("{home}/.prime/agent/kernel-venv-pa-x/bin/python"),
+        |_| "/home/ubuntu/.prime/agent/kernel-venv-agx/bin/python".to_string(),
+        |home| format!("{home}/.prime/agent/kernel-venv-agx/bin/python"),
     ));
     if candidate.exists() {
         return Some(candidate);

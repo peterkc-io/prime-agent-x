@@ -516,7 +516,7 @@ fn package_manager_corpus_matches_ts_binary() {
         eprintln!("SKIPPED: TS prime-agent binary not installed");
         return;
     };
-    let rust_bin = PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
+    let rust_bin = PathBuf::from(env!("CARGO_BIN_EXE_agx"));
     let fixtures = make_fixtures();
 
     let base = std::env::temp_dir().join(format!("pa-package-e2e-{}", std::process::id()));

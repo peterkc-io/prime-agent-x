@@ -36,7 +36,7 @@ fn xdg_kernel_venv_dir() -> PathBuf {
     data_home
         .join("prime")
         .join("agent")
-        .join("kernel-venv-pa-x")
+        .join("kernel-venv-agx")
 }
 
 pub(crate) fn resolve_writable_kernel_venv_dir() -> anyhow::Result<PathBuf> {

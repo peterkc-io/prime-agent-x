@@ -213,7 +213,7 @@ fn acp_daemon_attached_config_option_pickers() {
         .to_string(),
     )
     .unwrap();
-    let bin = env!("CARGO_BIN_EXE_pa-x");
+    let bin = env!("CARGO_BIN_EXE_agx");
     let mut child = Command::new(bin)
         .args([
             "--mode",

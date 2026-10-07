@@ -291,7 +291,7 @@ def pin_version(binary, stage_dir, version, binary_name):
         )
     if probe.returncode != 0:
         raise SystemExit(f"error: prime-agent --version failed: {probe.stderr.strip()}")
-    compiled = probe.stdout.strip().removeprefix("pa-x ")
+    compiled = probe.stdout.strip().removeprefix("agx ")
     if compiled != version:
         raise SystemExit(
             f"error: version pin mismatch: binary reports {compiled!r}, release "
@@ -307,7 +307,7 @@ def pin_version(binary, stage_dir, version, binary_name):
     )
     if probe.returncode != 0:
         raise SystemExit(f"error: staged {binary_name} --version failed: {probe.stderr.strip()}")
-    staged = probe.stdout.strip().removeprefix("pa-x ")
+    staged = probe.stdout.strip().removeprefix("agx ")
     if staged != version:
         raise SystemExit(
             f"error: staged manifest version mismatch: {staged!r} != {version!r}"

@@ -26,7 +26,7 @@ use std::process::Command;
 
 fn run(args: &[&str], script: &serde_json::Value) -> (String, String, i32) {
     let home = tempfile::TempDir::new().unwrap();
-    let bin = env!("CARGO_BIN_EXE_pa-x");
+    let bin = env!("CARGO_BIN_EXE_agx");
     let output = Command::new(bin)
         .args(args)
         .env("HOME", home.path())
@@ -124,7 +124,7 @@ fn run_in_home(
     args: &[&str],
     script: &serde_json::Value,
 ) -> (String, String, i32) {
-    let bin = env!("CARGO_BIN_EXE_pa-x");
+    let bin = env!("CARGO_BIN_EXE_agx");
     let output = Command::new(bin)
         .args(args)
         .env("HOME", home)
@@ -882,7 +882,7 @@ fn run_in_home_cwd(
     args: &[&str],
     script: &serde_json::Value,
 ) -> (String, String, i32) {
-    let bin = env!("CARGO_BIN_EXE_pa-x");
+    let bin = env!("CARGO_BIN_EXE_agx");
     let output = Command::new(bin)
         .args(args)
         .env("HOME", home)

@@ -83,7 +83,7 @@ fn packaged_binary_name() -> &'static str {
 fn stage_packaged_layout(dir: &Path, with_runtime: bool) {
     std::fs::create_dir_all(dir).expect("stage dir");
     let binary = dir.join(packaged_binary_name());
-    std::fs::copy(env!("CARGO_BIN_EXE_pa-x"), &binary).expect("copy binary");
+    std::fs::copy(env!("CARGO_BIN_EXE_agx"), &binary).expect("copy binary");
     set_executable(&binary);
     std::fs::write(
         dir.join("package.json"),
@@ -163,9 +163,9 @@ fn kernel_python() -> Option<PathBuf> {
     // layout the product's own bootstrap creates: `bin/python` on unix,
     // `Scripts\python.exe` on Windows).
     let venv_python = if cfg!(windows) {
-        "kernel-venv-pa-x/Scripts/python.exe"
+        "kernel-venv-agx/Scripts/python.exe"
     } else {
-        "kernel-venv-pa-x/bin/python"
+        "kernel-venv-agx/bin/python"
     };
     let candidate = PathBuf::from(std::env::var("HOME").map_or_else(
         |_| format!("/home/ubuntu/.prime/agent/{venv_python}"),
@@ -211,7 +211,7 @@ impl Sandbox {
     fn command(&self, staged: &Path) -> Command {
         let mut command = Command::new(staged.join(packaged_binary_name()));
         command
-            .env("PA_X_PROCESS", "1")
+            .env("AGX_PROCESS", "1")
             .env("HOME", self.home.path())
             .env("PRIME_AGENT_CODING_AGENT_DIR", &self.agent_dir)
             .env_remove("PI_PACKAGE_DIR")
@@ -351,7 +351,7 @@ fn packaged_binary_reports_manifest_version() {
     assert_eq!(output.status.code(), Some(0));
     assert_eq!(
         String::from_utf8_lossy(&output.stdout).trim(),
-        "pa-x 9.8.7-test",
+        "agx 9.8.7-test",
         "the packaged manifest version must win"
     );
 }
@@ -446,7 +446,7 @@ fn hostile_child_assertions(staged: &Path) {
     assert_eq!(output.status.code(), Some(0));
     assert_eq!(
         String::from_utf8_lossy(&output.stdout).trim(),
-        format!("pa-x {HOSTILE_STAGED_VERSION}"),
+        format!("agx {HOSTILE_STAGED_VERSION}"),
         "the hostile PI_PACKAGE_DIR must not win: {}",
         String::from_utf8_lossy(&output.stderr)
     );
@@ -726,7 +726,7 @@ fn packaging_dry_run_produces_artifact() {
             Some(fixture.dir),
         )
     } else {
-        (env!("CARGO_BIN_EXE_pa-x").into(), None, None)
+        (env!("CARGO_BIN_EXE_agx").into(), None, None)
     };
     // The platform tag the packer derives on this host: linux-x64 on the
     // linux CI host, win32-x64 on the windows-latest battery (the channel

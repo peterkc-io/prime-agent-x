@@ -1,6 +1,6 @@
-# pa-x: a separate Prime Agent fork
+# agx: a separate Prime Agent fork
 
-pa-x keeps upstream settings and session formats while separating its executable,
+agx keeps upstream settings and session formats while separating its executable,
 daemon namespace, and default kernel venv.
 
 ```text
@@ -9,7 +9,7 @@ upstream prime-agent ---- upstream sockets / kernel-venv
          +------ shared settings -------+
          +------ shared sessions -------+
          |                              |
-pa-x ------------------- pa-x sockets / kernel-venv-pa-x
+agx ------------------- agx sockets / kernel-venv-agx
          |
          +--- updates, telemetry, and trace uploads disabled
          +--- settings overlay and plugins planned, not implemented
@@ -20,12 +20,12 @@ pa-x ------------------- pa-x sockets / kernel-venv-pa-x
 The comparison uses upstream source defaults at `c24ac227f`. An installed
 upstream launcher can override its source defaults.
 
-| Feature | Upstream source | pa-x foundation |
+| Feature | Upstream source | agx foundation |
 | --- | --- | --- |
-| Executable and version name | `prime-agent` | `pa-x` |
-| Unix daemon directory | `prime-agent-<suffix>` | `pa-x-<suffix>` |
-| Windows pipe prefix | `prime-agent-` | `pa-x-` |
-| Default kernel venv | `kernel-venv` | `kernel-venv-pa-x` |
+| Executable and version name | `prime-agent` | `agx` |
+| Unix daemon directory | `prime-agent-<suffix>` | `agx-<suffix>` |
+| Windows pipe prefix | `prime-agent-` | `agx-` |
+| Default kernel venv | `kernel-venv` | `kernel-venv-agx` |
 | Agent and session stores | Existing formats and overrides | Same formats and overrides |
 | Inherited upstream role variables | No fork startup reset | Cleared in fresh processes |
 | Upstream socket use | No fork refusal | Rejected before connect, bind, or stale cleanup |
@@ -57,20 +57,20 @@ The native packer builds the local bundle. No upstream installation is replaced.
 
 - Settings and sessions remain shared in this foundation. An edit can affect the
   upstream program. Do not assume the planned overlay already exists.
-- `PA_X_PROCESS` marks fork descendants. It does not bypass socket refusal.
+- `AGX_PROCESS` marks fork descendants. It does not bypass socket refusal.
 - Kernel and bash-tool children must not inherit internal daemon role variables.
 - Telemetry and trace opt-ins remain readable in shared settings, but cannot
   enable the fork's production upload paths.
 - Root `README.md` remains upstream material. This document describes the fork.
-- Upstream release workflows are not a pa-x release process.
+- Upstream release workflows are not a agx release process.
 
 ## Maintaining the fork
 
 [SEAMS.md](SEAMS.md) lists every changed upstream file. Run:
 
 ```sh
-python3 scripts/pa-x/check_seams.py
-python3 scripts/pa-x/test_check_seams.py
+python3 scripts/agx/check_seams.py
+python3 scripts/agx/test_check_seams.py
 ```
 
 The checker compares with `upstream/main`. It rejects both an unlisted changed

@@ -84,7 +84,7 @@ const SCRUB_ENV: [&str; 10] = [
 /// under the workspace gate (`cargo test --workspace`) and asks for an
 /// explicit build otherwise.
 fn daemon_binary() -> PathBuf {
-    let profile_dir = Path::new(env!("CARGO_BIN_EXE_pa-x"))
+    let profile_dir = Path::new(env!("CARGO_BIN_EXE_agx"))
         .parent()
         .expect("profile directory of the prime-agent binary")
         .to_path_buf();
@@ -439,7 +439,7 @@ fn rust_daemon_cli_commands_end_to_end() {
     let sessions = agent_dir.join("sessions");
     std::fs::create_dir_all(&sessions).expect("sessions dir");
     let socket = dir.path().join("daemon.sock");
-    let cli = PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
+    let cli = PathBuf::from(env!("CARGO_BIN_EXE_agx"));
     let daemon = spawn_daemon(&daemon_binary(), &socket, &agent_dir);
     let socket_str = socket.to_string_lossy().to_string();
 
@@ -679,7 +679,7 @@ fn cli_connect_error_matches_ts_golden() {
     let dir = tempfile::TempDir::new().expect("temp dir");
     let agent_dir = dir.path().join("agent");
     let missing = dir.path().join("missing.sock");
-    let cli = PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
+    let cli = PathBuf::from(env!("CARGO_BIN_EXE_agx"));
     let output = run_cli(
         &cli,
         dir.path(),
@@ -741,7 +741,7 @@ fn schedule_usage_errors_and_valid_invocations() {
     let dir = tempfile::TempDir::new().expect("temp dir");
     let agent_dir = dir.path().join("agent");
     std::fs::create_dir_all(agent_dir.join("sessions")).expect("sessions dir");
-    let cli = PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
+    let cli = PathBuf::from(env!("CARGO_BIN_EXE_agx"));
     let rotated_socket = dir.path().join("bogus.sock");
     let rotated_socket = rotated_socket.to_str().expect("socket path");
 
@@ -861,7 +861,7 @@ fn ts_daemon_differential_cli_output() {
         std::thread::sleep(Duration::from_millis(50));
     }
 
-    let rust = PathBuf::from(env!("CARGO_BIN_EXE_pa-x"));
+    let rust = PathBuf::from(env!("CARGO_BIN_EXE_agx"));
     let pair = CliPair {
         ts: ts.clone(),
         rust: rust.clone(),

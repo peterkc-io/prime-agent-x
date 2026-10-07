@@ -24,7 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 [[bin]]
-name = "pa-x"
+name = "agx"
 path = "src/main.rs"
 
 [dev-dependencies]

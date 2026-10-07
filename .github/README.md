@@ -1,10 +1,10 @@
-# pa-x
+# agx
 
 A Prime Agent fork with a separate executable and runtime namespace.
 
 ## Why fork
 
-- [Separate daemon and kernel namespaces](../docs/fork/FORK.md) let pa-x run beside upstream.
+- [Separate daemon and kernel namespaces](../docs/fork/FORK.md) let agx run beside upstream.
 - [Startup environment reset](../docs/fork/FORK.md) prevents inherited upstream roles from selecting a fork process mode.
 - [Updates, telemetry, and trace uploads are disabled](../docs/fork/FORK.md) in the foundation.
 - [A local native bundle installer](../docs/fork/INSTALL.md) leaves the upstream installation intact.
@@ -14,7 +14,7 @@ A Prime Agent fork with a separate executable and runtime namespace.
 
 Read [the fork comparison and compatibility boundaries](../docs/fork/FORK.md).
 Use [the local installation instructions](../docs/fork/INSTALL.md), not the
-upstream installer, for `pa-x`.
+upstream installer, for `agx`.
 
 Settings and sessions are shared in this foundation. Root `README.md` remains
 upstream material. [The seam ledger](../docs/fork/SEAMS.md) records changes to

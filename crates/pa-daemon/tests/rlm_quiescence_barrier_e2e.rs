@@ -103,8 +103,8 @@ fn kernel_python() -> Option<PathBuf> {
         return Some(explicit);
     }
     let candidate = PathBuf::from(std::env::var("HOME").map_or_else(
-        |_| "/home/ubuntu/.prime/agent/kernel-venv-pa-x/bin/python".to_string(),
-        |home| format!("{home}/.prime/agent/kernel-venv-pa-x/bin/python"),
+        |_| "/home/ubuntu/.prime/agent/kernel-venv-agx/bin/python".to_string(),
+        |home| format!("{home}/.prime/agent/kernel-venv-agx/bin/python"),
     ));
     if candidate.exists() {
         return Some(candidate);

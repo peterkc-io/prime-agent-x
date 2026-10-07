@@ -284,7 +284,7 @@ mod tests {
         let traces = ClientTraces::new("/tmp", agent.clone());
         assert!(
             !traces.enabled().await,
-            "pa-x stays off despite the saved choice"
+            "agx stays off despite the saved choice"
         );
     }
 

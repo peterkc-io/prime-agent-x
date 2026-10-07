@@ -1,6 +1,6 @@
-# pa-x-identity
+# agx-identity
 
-Fork identity and process-boundary policy for `pa-x`.
+Fork identity and process-boundary policy for `agx`.
 
 ## Scope
 

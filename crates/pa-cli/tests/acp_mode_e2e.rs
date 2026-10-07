@@ -226,7 +226,7 @@ fn daemon_attached_command(
     socket: &std::path::Path,
     args: &[&str],
 ) -> Command {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_pa-x"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_agx"));
     command
         .args(args)
         .arg("--daemon-socket")
@@ -1966,8 +1966,8 @@ fn kernel_python() -> Option<std::path::PathBuf> {
         return Some(explicit);
     }
     let candidate = std::path::PathBuf::from(std::env::var("HOME").map_or_else(
-        |_| "/home/ubuntu/.prime/agent/kernel-venv-pa-x/bin/python".to_string(),
-        |home| format!("{home}/.prime/agent/kernel-venv-pa-x/bin/python"),
+        |_| "/home/ubuntu/.prime/agent/kernel-venv-agx/bin/python".to_string(),
+        |home| format!("{home}/.prime/agent/kernel-venv-agx/bin/python"),
     ));
     if candidate.exists() {
         return Some(candidate);

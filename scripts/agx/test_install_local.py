@@ -17,7 +17,7 @@ class InstallerChecks(unittest.TestCase):
         self.home = root / "home"
         self.home.mkdir()
         self.repo = root / "repo"
-        binary = self.repo / "target/release/pa-x"
+        binary = self.repo / "target/release/agx"
         binary.parent.mkdir(parents=True)
         binary.write_text("source binary")
         self.catalog = root / "catalog"
@@ -31,11 +31,11 @@ class InstallerChecks(unittest.TestCase):
 
     def package(self, args, **kwargs):
         self.assertIn("--binary-name", args)
-        self.assertEqual(args[args.index("--binary-name") + 1], "pa-x")
+        self.assertEqual(args[args.index("--binary-name") + 1], "agx")
         output = Path(args[args.index("--out-dir") + 1])
-        stage = output / "pa-x-fixture"
+        stage = output / "agx-fixture"
         stage.mkdir(parents=True)
-        (stage / "pa-x").write_text("new binary")
+        (stage / "agx").write_text("new binary")
 
     def install(self):
         install_local.install(skip_build=True, catalog_assets=self.catalog)
@@ -51,9 +51,9 @@ class InstallerChecks(unittest.TestCase):
         self.install()
         self.assertEqual((upstream / "sentinel").read_bytes(), b"upstream bundle")
         self.assertEqual((bins / "prime-agent").read_bytes(), b"upstream launcher")
-        self.assertEqual((share / "pa-x/pa-x").read_text(), "new binary")
-        launcher = bins / "pa-x"
-        self.assertIn(str(share / "pa-x/pa-x"), launcher.read_text())
+        self.assertEqual((share / "agx/agx").read_text(), "new binary")
+        launcher = bins / "agx"
+        self.assertIn(str(share / "agx/agx"), launcher.read_text())
         self.assertTrue(launcher.stat().st_mode & 0o111)
 
     def test_symlinked_ancestors_and_destination_are_rejected(self):
@@ -61,7 +61,7 @@ class InstallerChecks(unittest.TestCase):
         outside.mkdir()
         (outside / "sentinel").write_bytes(b"unchanged")
         for relative in [".local", ".local/share", ".local/bin",
-                         ".local/share/pa-x"]:
+                         ".local/share/agx"]:
             with self.subTest(path=relative):
                 path = self.home / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -83,16 +83,16 @@ class InstallerChecks(unittest.TestCase):
         self.assertFalse((self.home / ".local").exists())
 
     def test_failed_launcher_replacement_restores_previous_bundle(self):
-        destination = self.home / ".local/share/pa-x"
+        destination = self.home / ".local/share/agx"
         destination.mkdir(parents=True)
-        (destination / "pa-x").write_text("previous binary")
-        launcher = self.home / ".local/bin/pa-x"
+        (destination / "agx").write_text("previous binary")
+        launcher = self.home / ".local/bin/agx"
         launcher.parent.mkdir(parents=True)
         launcher.write_text("previous launcher")
         with mock.patch.object(Path, "replace", side_effect=OSError("fixture")):
             with self.assertRaisesRegex(OSError, "fixture"):
                 self.install()
-        self.assertEqual((destination / "pa-x").read_text(), "previous binary")
+        self.assertEqual((destination / "agx").read_text(), "previous binary")
         self.assertEqual(launcher.read_text(), "previous launcher")
         self.assertEqual(list(destination.parent.iterdir()), [destination])
         self.assertEqual(list(launcher.parent.iterdir()), [launcher])

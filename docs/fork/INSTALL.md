@@ -1,29 +1,29 @@
-# Install and update pa-x locally
+# Install and update agx locally
 
-Build a verified checkout and install a separate `pa-x` bundle. Automatic
+Build a verified checkout and install a separate `agx` bundle. Automatic
 updates are disabled.
 
 ## Layout and limits
 
 ```text
-verified checkout -> native release packer -> ~/.local/share/pa-x/
-                                          -> ~/.local/bin/pa-x
+verified checkout -> native release packer -> ~/.local/share/agx/
+                                          -> ~/.local/bin/agx
 
-pa-x daemon       -> <TMPDIR>/pa-x-<suffix>/
-pa-x kernel       -> ~/.prime/agent/kernel-venv-pa-x/
+agx daemon       -> <TMPDIR>/agx-<suffix>/
+agx kernel       -> ~/.prime/agent/kernel-venv-agx/
 settings/sessions -> ~/.prime/agent/ (shared with upstream)
 ```
 
 The local installer supports Unix hosts. Windows runtime pipe names use the
-`pa-x-` prefix, but this installer does not install Windows binaries.
+`agx-` prefix, but this installer does not install Windows binaries.
 
 **Settings and sessions are still shared.** The foundation does not provide a
 settings overlay. `PRIME_AGENT_CODING_AGENT_DIR` and the existing session-dir
 overrides remain supported.
 
-The installer writes only the `pa-x` launcher and bundle. It does not replace
+The installer writes only the `agx` launcher and bundle. It does not replace
 `prime-agent`, its installation, or its kernel venv. Bundled runtime assets can
-retain upstream names inside the `pa-x` bundle.
+retain upstream names inside the `agx` bundle.
 
 ## Install
 
@@ -34,18 +34,18 @@ crate dependencies. No release credentials are required.
 From the verified checkout:
 
 ```sh
-scripts/pa-x/install-local.sh
-~/.local/bin/pa-x --version
+scripts/agx/install-local.sh
+~/.local/bin/agx --version
 ```
 
-The version output starts with `pa-x `. The package contains the native runtime,
+The version output starts with `agx `. The package contains the native runtime,
 skills, and generated catalog assets used by the upstream release packer.
-The first real kernel start uses the separate `kernel-venv-pa-x` venv.
+The first real kernel start uses the separate `kernel-venv-agx` venv.
 
 For an already built release binary and a generated catalog directory:
 
 ```sh
-scripts/pa-x/install-local.sh --skip-build --catalog-assets <catalog-directory>
+scripts/agx/install-local.sh --skip-build --catalog-assets <catalog-directory>
 ```
 
 To test installation without changing the real installation, use a fresh,
@@ -58,18 +58,18 @@ bundle if launcher replacement fails.
 Run the installer again from a newly verified checkout. It stages the new
 bundle before replacing the previous bundle and launcher.
 
-`pa-x update`, `pa-x update --nightly`, `pa-x u`, and TUI `/update` exit with an
+`agx update`, `agx update --nightly`, `agx u`, and TUI `/update` exit with an
 error and these local installation instructions. They do not download an
 upstream installer or query a release endpoint.
 
 ## Runtime isolation
 
-A fresh `pa-x` process clears inherited upstream socket, kernel-venv, kernel
+A fresh `agx` process clears inherited upstream socket, kernel-venv, kernel
 owner, package-dir, and `PRIME_AGENT_INTERNAL_*` variables. It sets
-`PA_X_PROCESS=1`. Marked fork children keep their required inherited values.
+`AGX_PROCESS=1`. Marked fork children keep their required inherited values.
 Bash-tool and kernel children remove internal role variables before spawn.
 
-Do not set `PA_X_PROCESS` as a general shell setting. It is a process-lineage
+Do not set `AGX_PROCESS` as a general shell setting. It is a process-lineage
 marker, not permission to use upstream sockets. Flag, environment, and default
 socket paths reject the upstream `prime-agent-<uid or user>` and
 `prime-agent-rust-<numeric uid>` directories before an operation opens them.

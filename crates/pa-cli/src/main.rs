@@ -4,7 +4,7 @@ fn main() {
         let home = pa_types::platform::home_dir().unwrap_or_else(|| std::path::PathBuf::from("/"));
         std::env::set_var(
             "PRIME_AGENT_KERNEL_VENV",
-            home.join(".prime").join("agent").join("kernel-venv-pa-x"),
+            home.join(".prime").join("agent").join("kernel-venv-agx"),
         );
     }
     // Allocator tuning before any thread spawns: the session-load and
